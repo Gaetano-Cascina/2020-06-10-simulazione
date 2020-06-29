@@ -7,6 +7,10 @@ package it.polito.tdp.imdb;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultWeightedEdge;
+
+import it.polito.tdp.imdb.model.Actor;
 import it.polito.tdp.imdb.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,10 +39,10 @@ public class FXMLController {
     private Button btnSimulazione; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGenere"
-    private ComboBox<?> boxGenere; // Value injected by FXMLLoader
+    private ComboBox<String> boxGenere; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAttore"
-    private ComboBox<?> boxAttore; // Value injected by FXMLLoader
+    private ComboBox<Actor> boxAttore; //Value injected by FXMLLoader
 
     @FXML // fx:id="txtGiorni"
     private TextField txtGiorni; // Value injected by FXMLLoader
@@ -48,11 +52,35 @@ public class FXMLController {
 
     @FXML
     void doAttoriSimili(ActionEvent event) {
+    	txtResult.clear();
+    	Actor actor = boxAttore.getValue();
+    	if(actor == null) {
+        	txtResult.clear();
+        	txtResult.appendText("Seleziona un attore!\n");;
+        	return ;
+    	}
+    	
+    	txtResult.appendText("ATTORI SIMILI A: " + actor.toString() + "\n");
+    	for(Actor a : model.attoriSimili(actor)) {
+    		txtResult.appendText(a.toString() + "\n");
+    	}
 
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	txtResult.clear();
+    	
+    	String gen = boxGenere.getValue();
+    	
+    	if(gen == null) {
+    		txtResult.appendText("Selezionare un genere");
+    	}
+    	
+        model.creaGrafo(gen);
+        boxAttore.getItems().clear();
+    	boxAttore.getItems().addAll(model.attori());
+    	txtResult.appendText("Grafo creato con N.vertici = " + model.getNumVertex() + " N. archi = " + model.getNumArchi());
 
     }
 
@@ -75,5 +103,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	boxGenere.getItems().addAll(model.generi());
     }
 }
